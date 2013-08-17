@@ -16,7 +16,7 @@
        specific language governing permissions and limitations
        under the License.
 */
-package org.apache.cordova.core; // use core?
+package org.apache.cordova.core;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import android.os.Build;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.LOG;
@@ -39,21 +42,23 @@ public class Gesture extends CordovaPlugin {
     private static final String LOG_TAG = "Gesture";
 
     @Override
-    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-
-		// allow registration if gesture from javascript? could be nice if this fails, means missing plugin or not support
-		// could fallback on something else
-        if (action.equals("registerGesture")) {
-			this.registerGesture(args.getString(0));
-			// @todo: error callback on failure
+    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException 
+	{
+        if( action.equals("register") ) {
+			
+			try {
+        		this.registerGesture(args.getString(0));
+			} catch(GestureInvalidExpection e) {
+				// @todo: error callback on failure
+			}
 			
 			JSONObject obj = new JSONObject();
 			obj.put("foo", "bar"); // need anything here?
             callbackContext.success(obj);
 
-        } else if (action.equals("disableEvents")) {
+        } else if( action.equals("disableEvents") ) {
            this.activateNativeEvents(false);
-        } else if (action.equals("enableEvents")) {
+        } else if( action.equals("enableEvents") ) {
            this.activateNativeEvents(true);
         } else {
             return false;
@@ -62,44 +67,80 @@ public class Gesture extends CordovaPlugin {
         return true;
     }
 
-	public void activateNativeEvents(boolean yesNo) {
-	
-		// TODO: perf optimization to disable any native handling, take over control of touch screen!
+	public void activateNativeEvents(boolean yesNo)
+	{
+		TestWebView view = (TestWebView) webView;
+
 		// Good for only passing events directly to the DOM
 		if(yesNo) {
-			cordova.webview.disableNativeEvents(true);
+			view.disableNativeEvents(true);
 		} else {
-			cordova.webview.disableNativeEvents(false);
+			view.disableNativeEvents(false);
 		}
 		
 		return true;
 		
 	}
-	
+
 	/**
      * Register a standardized gesture handler.
 	 * ('tap', 'swipe', 'handgrab', ...?) which basic gestures to standardize?
 	 *
      * @param name The name of the gesture handler
-     * @param config Allow passing a JSON array of configuration parameters that we pass to the GestureHandler? (e.g. ms in between touch start & end?)
+     * @param config Allow passing a JSON array of configuration parameters that we pass to the GestureHandler?
 	 *
      * @throws GestureInvalidExpection
      */
-   public void registerGestureHandler(String name) {
-		// TODO: array of valid gesture handlers available
+   public void registerGesture(String name)
+   {
 		GestureDetector gesture;
-		
-		// if(!exists)
-		//   throw new GestureInvalidExpection("The gesture "+name+" is not available");
-		
-		// extend cordova webview, latest version?
-		// cordova.webview.registerGestureHandler(name, gesture);
+
+		switch(name) {
+			case "tap" :
+				gesture = new GestureDetector(cordova.getActivity(), TapListener);
+				break;
+			default:
+				throw new GestureInvalidExpection("The gesture "+name+" is not available");
+		}
+
+		// TestWebView is our extended cordova webview, this will need to back into Cordova
+		TestWebView view = (TestWebView) webView;
+		view.registerGestureHandler(name, gesture);
 		
 		LOG.d(LOG_TAG, "Registered event handler " + name);
-		
-		return true;
-		
 	}
 }
 
 class GestureInvalidExpection extends Exception {}
+
+class TapListener extends GestureDetector.SimpleOnGestureListener {
+    private static String DEBUG_TAG = "Gesture:tap"; 
+    
+    private static String name = "tap";
+    
+	public CordovaWebView webView;
+	
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent event) { 
+
+    	// get coords from event
+    	int x = 0;
+		int y = 0;
+		
+    	String jsonInfo = "{\"coords\":{\"x\":"+x+", \"y\":"+y+"}}";
+    	
+        LOG.d(DEBUG_TAG,"tap: " + event.toString()); 
+        
+		// Pass this to JavaScript, will create a DOM event
+        webView.loadUrl("javascript:cordova.onGesture('"+ name +"', "+ jsonInfo +")");
+        
+        return true;
+    }
+
+    @Override
+    public boolean onFling(MotionEvent event1, MotionEvent event2, 
+            float velocityX, float velocityY) {
+        LOG.d(DEBUG_TAG, "onFling: " + event1.toString()+event2.toString());
+        return true;
+    }
+}

@@ -10,7 +10,7 @@
     -->
 	
     <js-module src="www/gesture.js" name="capture">
-        <clobbers target="window.plugins.gesture" />
+        <clobbers target="cordova.gesture" />
     </js-module>
 
     <!-- android -->
@@ -19,13 +19,6 @@
             <feature name="Gesture" >
                 <param name="android-package" value="org.apache.cordova.core.Gesture"/>
             </feature>
-        </config-file>
-        
-		<!-- todo, check any deps here? touchscreen requirement? -->
-        <config-file target="AndroidManifest.xml" parent="/*">
-            <uses-permission android:name="android.permission.RECORD_AUDIO" />
-            <uses-permission android:name="android.permission.RECORD_VIDEO"/>
-            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
         </config-file>
 
         <source-file src="src/android/Gesture.java" target-dir="src/org/apache/cordova/core" />
