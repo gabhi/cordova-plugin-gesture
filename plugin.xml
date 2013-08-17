@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin xmlns="http://cordova.apache.org/ns/plugins/1.0"
+           id="org.apache.cordova.core.gesture"
+      version="0.1.0">
+    <name>Gesture</name>
+	
+	<!--
+    <dependency id="org.apache.cordova.core.file" url="https://git-wip-us.apache.org/repos/asf/cordova-plugin-file" commit="master" subdir="/*" />
+    -->
+	
+    <js-module src="www/gesture.js" name="capture">
+        <clobbers target="window.plugins.gesture" />
+    </js-module>
+
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="Gesture" >
+                <param name="android-package" value="org.apache.cordova.core.Gesture"/>
+            </feature>
+        </config-file>
+        
+		<!-- todo, check any deps here? touchscreen requirement? -->
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.RECORD_AUDIO" />
+            <uses-permission android:name="android.permission.RECORD_VIDEO"/>
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+        </config-file>
+
+        <source-file src="src/android/Gesture.java" target-dir="src/org/apache/cordova/core" />
+    </platform>
+    
+    <!-- ios -->
+    <platform name="ios">    
+        <config-file target="config.xml" parent="/*">
+            <feature name="Gesture">
+                <param name="ios-package" value="CDVGesture" /> 
+            </feature>
+        </config-file>
+        <header-file src="src/ios/CDVGesture.h" />
+        <source-file src="src/ios/CDVGesture.m" />
+        <resource-file src="src/ios/CDVGesture.bundle" />
+    </platform>
+        
+</plugin>
