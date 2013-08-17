@@ -32,33 +32,42 @@ function Gesture() {
  * @param {Function} errorCB
  */
 Gesture.register = function(name, successCB, errorCB){
-    var successCb = function(result){
+    var cb = function(result){
 		console.log("GOT result!");
 		console.log(result);
+		successCB();
 	};
 
 	// TODO: allow passing 'options' for the gesture handler?
 	// Gesture.register({name: 'tap', 'ms-delay': 30}, successCB, errorCB);
 	
 	var pluginOptions = [name];
-	exec(successCB, errorCB, "Gesture", "register", pluginOptions);
+	exec(cb, errorCB, "Gesture", "register", pluginOptions);
 };
 
 Gesture.disableEvents = function(yesNo, successCB, errorCB){
-    var success = function(result){
+    var cb = function(result){
 		console.log("GOT result!");
 		console.log(result);
 		successCB(); // what do we return?
 	};
 
-	var pluginOptions = [];
-	exec(success, errorCB, "Gesture", "disableEvents", pluginOptions);
+	var pluginOptions = [yesNo];
+	exec(cb, errorCB, "Gesture", "disableEvents", pluginOptions);
+};
+
+
+Gesture.onGesture = function(type, info){
+
+	App.log("GOT gesture " + type + " at x: "+ info.coords.x + " y: "+ info.coords.y);
+	
+	
 };
 
 /* 
 Need to call this from the native gesture handler...
 
-window.plugins.gesture.onGesture("tap", x, y);
+cordova.gesture.onGesture("tap", x, y);
 
 Use code from:
 https://github.com/purplecabbage/cordova-wp7/blob/master/templates/standalone/cordovalib/BrowserMouseHelper.cs
