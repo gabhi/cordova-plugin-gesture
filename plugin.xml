@@ -18,7 +18,7 @@
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="Gesture" >
-                <param name="android-package" value="org.apache.cordova.core"/>
+                <param name="android-package" value="org.apache.cordova.core.Gesture"/>
             </feature>
         </config-file>
 

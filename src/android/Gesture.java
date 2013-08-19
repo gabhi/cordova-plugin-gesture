@@ -18,23 +18,12 @@
 */
 package org.apache.cordova.core;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import org.apache.cordova.listeners.TapListener;
-
-import android.os.Build;
 import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.MotionEvent;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.LOG;
 import org.apache.cordova.PluginResult;
-import org.apache.cordova.FileHelper;
-import org.apache.cordova.DirectoryManager;
 import org.hackmtl.phonegap.gestures.TestWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
