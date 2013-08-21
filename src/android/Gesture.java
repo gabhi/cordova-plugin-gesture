@@ -23,7 +23,6 @@ import android.view.GestureDetector;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.LOG;
-import org.apache.cordova.PluginResult;
 import org.hackmtl.phonegap.gestures.TestWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,17 +40,15 @@ public class Gesture extends CordovaPlugin {
 			try {
         		this.registerGesture( args.getString(0) );
 			} catch(GestureInvalidExpection e) {
-				// @todo: error callback on failure
+				callbackContext.error(e.getMessage());
+				return false;
 			}
-			
+
 			JSONObject obj = new JSONObject();
-			obj.put("foo", "bar"); // need anything here?
             callbackContext.success(obj);
 
         } else if( action.equals("disableEvents") ) {
-           this.disableTouchEvents(false);
-        } else if( action.equals("enableEvents") ) {
-           this.disableTouchEvents(true);
+           this.disableTouchEvents( args.getBoolean(0) );
         } else {
             return false;
         }
@@ -62,13 +59,7 @@ public class Gesture extends CordovaPlugin {
 	public void disableTouchEvents(boolean yesNo)
 	{
 		TestWebView view = (TestWebView) webView;
-
-		// Good for only passing events directly to the DOM
-		if(yesNo) {
-			view.disableTouchEvents(true);
-		} else {
-			view.disableTouchEvents(false);
-		}
+		view.disableTouchEvents(yesNo);
 	}
 
 	/**
@@ -80,18 +71,21 @@ public class Gesture extends CordovaPlugin {
      */
    public void registerGesture(String name) throws GestureInvalidExpection
    {
-		GestureDetector gesture;
+	   TestWebView view = (TestWebView) webView;
+	   GestureDetector gesture;
 
 		if( name.equals("tap") ) {
-			gesture = new GestureDetector(cordova.getActivity(), new TapListener());
+			TestWebViewGesture listener = new TapListener();
+			listener.setWebView(view);
+
+			gesture = new GestureDetector(cordova.getActivity(), listener);
 		} else {
 			throw new GestureInvalidExpection("The gesture "+name+" is not available");
 		}
 
-		// TestWebView is our extended cordova webview, this will need to back into Cordova
-		TestWebView view = (TestWebView) webView;
+		// Register touch handler...
 		view.registerGestureHandler(name, gesture);
-		
+
 		LOG.d(LOG_TAG, "Registered event handler " + name);
 	}
 }
@@ -103,4 +97,8 @@ class GestureInvalidExpection extends Exception {
 	public GestureInvalidExpection(String message) {
 		 super(message);
 	}
+}
+
+interface TestWebViewGesture extends GestureDetector.OnGestureListener {
+	public void setWebView(TestWebView view);
 }

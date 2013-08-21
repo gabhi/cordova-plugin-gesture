@@ -5,11 +5,7 @@
       version="0.1.0">
 
     <name>Gesture</name>
-	
-	<!--
-    <dependency id="org.apache.cordova.core.file" url="https://git-wip-us.apache.org/repos/asf/cordova-plugin-file" commit="master" subdir="/*" />
-    -->
-	
+
     <js-module src="www/gesture.js" name="Gesture">
         <clobbers target="cordova.gesture" />
     </js-module>
@@ -22,7 +18,7 @@
             </feature>
         </config-file>
 
-        <source-file src="src/android/Gesture.java" target-dir="src/org/apache/cordova/core" />
+		<source-file src="src/android/Gesture.java" target-dir="src/org/apache/cordova/core" />
 		<source-file src="src/android/TapListener.java" target-dir="src/org/apache/cordova/core" />
     </platform>
     
